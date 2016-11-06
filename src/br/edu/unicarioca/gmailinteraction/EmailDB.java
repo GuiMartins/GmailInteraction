@@ -6,6 +6,7 @@
 package br.edu.unicarioca.gmailinteraction;
 
 import com.mysql.jdbc.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,15 +21,18 @@ import java.util.logging.Logger;
  */
 public final class EmailDB {
 
+    private static final String DATABASE_NAME = "gmail";
     private static final String TABLE_NAME = "inbox";
     private static final String COLUMN_FROM = "sender";
     private static final String COLUMN_SUBJECT = "subject";
     private static EmailDB instance = null;
     private Connection conn = null;
+    private PreparedStatement pStmt = null;
+    private String sql;
 
     private EmailDB() {
         try {
-            conn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/gmail", "root", "");
+            conn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/" + DATABASE_NAME, "root", "");
         } catch (SQLException ex) {
             Logger.getLogger(EmailDB.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -40,6 +44,35 @@ public final class EmailDB {
         }
 
         return instance;
+    }
+
+    public void setup() {
+        Debug.log("Setupando banco de dados...");
+
+        try {
+            DatabaseMetaData dbm = conn.getMetaData();
+            // check if "employee" table is there
+            ResultSet tables = dbm.getTables(null, null, TABLE_NAME, null);
+            if (tables.next()) {
+                Debug.log("Tabela " + TABLE_NAME + " encontrada.");
+            } else {
+                Debug.log("Criando tabela " + TABLE_NAME);
+                
+                sql = "CREATE TABLE IF NOT EXISTS inbox (id int(10) NOT NULL, sender varchar(100) NOT NULL, subject varchar(100) NOT NULL);";
+                pStmt = conn.prepareStatement(sql);
+                pStmt.execute();
+
+                sql = "ALTER TABLE inbox ADD PRIMARY KEY (id), ADD UNIQUE KEY id (id);";
+                pStmt = conn.prepareStatement(sql);
+                pStmt.execute();
+
+                sql = "ALTER TABLE inbox MODIFY id int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;";
+                pStmt = conn.prepareStatement(sql);
+                pStmt.execute();
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(EmailDB.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public ArrayList<MailData> select() {
@@ -82,7 +115,7 @@ public final class EmailDB {
     }
 
     void clear() {
-        String sql = "TRUNCATE TABLE " + TABLE_NAME;
+        sql = "TRUNCATE TABLE " + TABLE_NAME;
         try {
             delete(conn, sql, null);
         } catch (SQLException ex) {
@@ -91,7 +124,7 @@ public final class EmailDB {
     }
 
     private ResultSet executeQuery(Connection conn, String sql) throws SQLException {
-        PreparedStatement pStmt = conn.prepareStatement(sql);
+        pStmt = conn.prepareStatement(sql);
 
         Debug.log(sql);
 
@@ -99,14 +132,14 @@ public final class EmailDB {
     }
 
     private int executeUpdate(Connection conn, String sql, ArrayList params) throws SQLException {
-        PreparedStatement pStmt = conn.prepareStatement(sql);
+        pStmt = conn.prepareStatement(sql);
 
         if (params != null) {
             for (int i = 1; i <= params.size(); i++) {
                 pStmt.setString(i, (String) params.get(i - 1));
             }
         }
-        
+
         Debug.log(sql);
 
         return pStmt.executeUpdate();

@@ -26,6 +26,7 @@ public class GmailInteractionUI extends javax.swing.JFrame {
 
     public GmailInteractionUI() {
         initComponents();
+        EmailDB.getInstance().setup();
         model = (DefaultTableModel) tableMailList.getModel();
         showOfflineMail();
     }
