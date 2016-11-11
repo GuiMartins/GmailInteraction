@@ -25,6 +25,9 @@ public final class EmailDB {
     private static final String TABLE_NAME = "inbox";
     private static final String COLUMN_FROM = "sender";
     private static final String COLUMN_SUBJECT = "subject";
+    private static final String COLUMN_CONTENT = "content";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "";
     private static EmailDB instance = null;
     private Connection conn = null;
     private PreparedStatement pStmt = null;
@@ -32,9 +35,21 @@ public final class EmailDB {
 
     private EmailDB() {
         try {
-            conn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/" + DATABASE_NAME, "root", "");
+            conn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/" + DATABASE_NAME, DB_USER, DB_PASSWORD);
         } catch (SQLException ex) {
-            Logger.getLogger(EmailDB.class.getName()).log(Level.SEVERE, null, ex);
+            Debug.log("Banco de dados " + DATABASE_NAME + " nao encontrado. Criando ...");
+            sql = "CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME;
+
+            try {
+                conn = (Connection)DriverManager.getConnection("jdbc:mysql://localhost:3306/", DB_USER, DB_PASSWORD);
+                
+                pStmt = conn.prepareStatement(sql);
+                pStmt.execute();
+                
+                conn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/" + DATABASE_NAME, DB_USER, DB_PASSWORD);
+            } catch (SQLException ex1) {
+                Logger.getLogger(EmailDB.class.getName()).log(Level.SEVERE, null, ex1);
+            }
         }
     }
 
@@ -57,8 +72,8 @@ public final class EmailDB {
                 Debug.log("Tabela " + TABLE_NAME + " encontrada.");
             } else {
                 Debug.log("Criando tabela " + TABLE_NAME);
-                
-                sql = "CREATE TABLE IF NOT EXISTS inbox (id int(10) NOT NULL, sender varchar(100) NOT NULL, subject varchar(100) NOT NULL);";
+
+                sql = "CREATE TABLE IF NOT EXISTS inbox (id int(10) NOT NULL, sender varchar(100) NOT NULL, subject varchar(100) NOT NULL, content text(64000) NOT NULL);";
                 pStmt = conn.prepareStatement(sql);
                 pStmt.execute();
 
@@ -87,6 +102,7 @@ public final class EmailDB {
                 mailData = new MailData();
                 mailData.setFrom(rs.getString(COLUMN_FROM));
                 mailData.setSubject(rs.getString(COLUMN_SUBJECT));
+                mailData.setContent(rs.getString(COLUMN_CONTENT));
 
                 mailDataList.add(mailData);
             }
@@ -98,13 +114,14 @@ public final class EmailDB {
     }
 
     public void insert(ArrayList<MailData> mailDataList) {
-        String sqlQuery = "INSERT INTO " + TABLE_NAME + " (" + COLUMN_FROM + ", " + COLUMN_SUBJECT + ") VALUES (?, ?);";
+        String sqlQuery = "INSERT INTO " + TABLE_NAME + " (" + COLUMN_FROM + ", " + COLUMN_SUBJECT + ", " + COLUMN_CONTENT + ") VALUES (?, ?, ?);";
         ArrayList<String> params = new ArrayList();
 
         for (int i = 0; i < mailDataList.size(); i++) {
             params.clear();
             params.add(mailDataList.get(i).getFrom());
             params.add(mailDataList.get(i).getSubject());
+            params.add(mailDataList.get(i).getContent());
 
             try {
                 insert(conn, sqlQuery, params);

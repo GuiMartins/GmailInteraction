@@ -49,6 +49,11 @@ public class GmailInteractionUI extends javax.swing.JFrame {
         labelsPanel = new javax.swing.JPanel();
         labelLastUpdate = new javax.swing.JLabel();
         labelLastUpdateInfo = new javax.swing.JLabel();
+        textBoxPanel = new javax.swing.JPanel();
+        boxEmail = new javax.swing.JTextField();
+        labelEmail = new javax.swing.JLabel();
+        labelPassword = new javax.swing.JLabel();
+        boxPassword = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -57,15 +62,22 @@ public class GmailInteractionUI extends javax.swing.JFrame {
 
             },
             new String [] {
-                "From", "Subject"
+                "From", "Subject", "Content"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         mailListScrollPanel.setViewportView(tableMailList);
@@ -102,9 +114,12 @@ public class GmailInteractionUI extends javax.swing.JFrame {
                 .addGroup(buttonsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonRefresh)
                     .addComponent(buttonShowOffline))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(13, Short.MAX_VALUE))
         );
 
+        labelsPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        labelLastUpdate.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
         labelLastUpdate.setText("Time of last online update:");
 
         labelLastUpdateInfo.setText("text_holder");
@@ -130,6 +145,43 @@ public class GmailInteractionUI extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        textBoxPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        labelEmail.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        labelEmail.setText("Email:");
+
+        labelPassword.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        labelPassword.setText("Password:");
+
+        javax.swing.GroupLayout textBoxPanelLayout = new javax.swing.GroupLayout(textBoxPanel);
+        textBoxPanel.setLayout(textBoxPanelLayout);
+        textBoxPanelLayout.setHorizontalGroup(
+            textBoxPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(textBoxPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(textBoxPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(labelEmail)
+                    .addComponent(boxEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(textBoxPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(labelPassword)
+                    .addComponent(boxPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(295, Short.MAX_VALUE))
+        );
+        textBoxPanelLayout.setVerticalGroup(
+            textBoxPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, textBoxPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(textBoxPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(labelEmail)
+                    .addComponent(labelPassword))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(textBoxPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(boxEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(boxPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
@@ -137,20 +189,23 @@ public class GmailInteractionUI extends javax.swing.JFrame {
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addComponent(labelsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(mailListScrollPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 761, Short.MAX_VALUE)
+                .addComponent(buttonsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(mailListScrollPanel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(textBoxPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(buttonsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(labelsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(buttonsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(labelsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(textBoxPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(mailListScrollPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE)
+                .addComponent(mailListScrollPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -251,6 +306,14 @@ public class GmailInteractionUI extends javax.swing.JFrame {
         Debug.log("Baixando mensagens...");
 
         CheckingMails checkingEmails = new CheckingMails();
+        String inputedEmail = boxEmail.getText();
+        String inputedPasswors = boxEmail.getText();
+        
+        if((inputedEmail != null && inputedEmail.isEmpty() == false && inputedEmail.compareTo(" ") != 0) 
+                && (inputedPasswors != null && inputedPasswors.isEmpty() == false && inputedPasswors.compareTo(" ") != 0)){
+            Debug.log("Configurando dados de login inputados...");
+            checkingEmails = new CheckingMails(inputedEmail, inputedPasswors);
+        }
 
         mailDataList = checkingEmails.getMailData();
     }
@@ -267,7 +330,7 @@ public class GmailInteractionUI extends javax.swing.JFrame {
 
         for (int i = 0; i < mailDataList.size(); i++) {
             currentMailData = mailDataList.get(i);
-            model.insertRow(model.getRowCount(), new Object[]{currentMailData.getFrom(), currentMailData.getSubject()});
+            model.insertRow(model.getRowCount(), new Object[]{currentMailData.getFrom(), currentMailData.getSubject(), currentMailData.getContent()});
         }
     }
 
@@ -287,14 +350,19 @@ public class GmailInteractionUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField boxEmail;
+    private javax.swing.JPasswordField boxPassword;
     private javax.swing.JButton buttonRefresh;
     private javax.swing.JButton buttonShowOffline;
     private javax.swing.JPanel buttonsPanel;
+    private javax.swing.JLabel labelEmail;
     private javax.swing.JLabel labelLastUpdate;
     private javax.swing.JLabel labelLastUpdateInfo;
+    private javax.swing.JLabel labelPassword;
     private javax.swing.JPanel labelsPanel;
     private javax.swing.JScrollPane mailListScrollPanel;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JTable tableMailList;
+    private javax.swing.JPanel textBoxPanel;
     // End of variables declaration//GEN-END:variables
 }

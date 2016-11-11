@@ -13,6 +13,15 @@ public class MailData
 {
     private String subject;
     private String from;
+    private String content;
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 
     public String getSubject()
     {

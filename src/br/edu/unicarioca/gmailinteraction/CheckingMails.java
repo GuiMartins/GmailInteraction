@@ -3,25 +3,36 @@ package br.edu.unicarioca.gmailinteraction;
 import java.util.ArrayList;
 import java.util.Properties;
 import javax.mail.Address;
+import javax.mail.BodyPart;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
+import javax.mail.internet.MimeMultipart;
+import org.jsoup.Jsoup;
 
 public class CheckingMails {
 
     private static final String MAIL_FOLDER_NAME = "INBOX";
     private static final int MAIL_LIST_LIMIT = 10;
 
-    private String host = "pop.gmail.com";// change accordingly
+    private String host = "pop.gmail.com";
     private String mailStoreType = "pop3";
-    private String username = "apsandersonbd@gmail.com";// change accordingly
-    private String password = "apsanderson";// change accordingly
+    private String username;
+    private String password;
     private ArrayList<MailData> mailDataList = null;
 
     public CheckingMails() {
+        this.username = "apsandersondb@gmail.com";
+        this.password = "apsanderson";
+        this.mailDataList = check();
+    }
+
+    public CheckingMails(String username, String password) {
+        this.username = username;
+        this.password = password;
         this.mailDataList = check();
     }
 
@@ -66,10 +77,7 @@ public class CheckingMails {
     }
 
     private ArrayList<MailData> check() {
-        Debug.log("Requesitando lista de emails...");
-
         try {
-            //create properties field
             Properties properties = new Properties();
 
             Debug.log("Setando propriedades...");
@@ -79,7 +87,6 @@ public class CheckingMails {
             properties.put("mail.pop3.starttls.enable", "true");
             Session emailSession = Session.getInstance(properties, new GmailAuthenticator(username, password));
 
-            //create the POP3 store object and connect with the pop server
             Store store = emailSession.getStore("pop3s");
 
             Debug.log("Conectando...");
@@ -88,11 +95,9 @@ public class CheckingMails {
 
             Debug.log("Abrindo caixa: " + MAIL_FOLDER_NAME);
 
-            //create the folder object and open it
             Folder emailFolder = store.getFolder(MAIL_FOLDER_NAME);
             emailFolder.open(Folder.READ_ONLY);
 
-            // retrieve the messages from the folder in an array and print it
             Message[] messages = emailFolder.getMessages();
             Debug.log("Mensagens recebidas = " + messages.length);
 
@@ -103,12 +108,21 @@ public class CheckingMails {
                 mailData = new MailData();
 
                 Address address = message.getFrom()[0];
-                
+
                 mailData.setFrom(address.toString());
                 mailData.setSubject(message.getSubject());
 
+                if (message.getContent() instanceof MimeMultipart) {
+                    Debug.log("Content eh um Mime.");
+                    mailData.setContent(getTextFromMimeMultipart((MimeMultipart) message.getContent()));
+                } else {
+                    Debug.log("Content nao eh um Mime.");
+                    mailData.setContent(message.getContent().toString());
+                }
+
                 mDataList.add(mailData);
 
+                // apenas pra teste, meio lentinho esse troço...
                 if (mDataList.size() >= MAIL_LIST_LIMIT) {
                     break;
                 }
@@ -131,11 +145,22 @@ public class CheckingMails {
 
         return null;
     }
-}
 
-//   public static void main(String[] args)
-//   {
-//    
-//
-//      check(host, mailStoreType, username, password);
-//   }
+    private String getTextFromMimeMultipart(MimeMultipart mimeMultipart) throws Exception {
+        String result = "";
+        int count = mimeMultipart.getCount();
+        for (int i = 0; i < count; i++) {
+            BodyPart bodyPart = mimeMultipart.getBodyPart(i);
+            if (bodyPart.isMimeType("text/plain")) {
+                result = result + "\n" + bodyPart.getContent();
+                break; // without break same text appears twice in my tests
+            } else if (bodyPart.isMimeType("text/html")) {
+                String html = (String) bodyPart.getContent();
+                result = result + "\n" + Jsoup.parse(html).text();
+            } else if (bodyPart.getContent() instanceof MimeMultipart) {
+                result = result + getTextFromMimeMultipart((MimeMultipart) bodyPart.getContent());
+            }
+        }
+        return result;
+    }
+}
