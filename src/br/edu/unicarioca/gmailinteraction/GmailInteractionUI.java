@@ -288,6 +288,10 @@ public class GmailInteractionUI extends javax.swing.JFrame {
 
     private void saveOffline() {
         Debug.log("Salvando email no banco...");
+        
+        if (mailDataList == null)
+            return;
+        
         EmailDB.getInstance().insert(mailDataList);
     }
 
@@ -320,8 +324,8 @@ public class GmailInteractionUI extends javax.swing.JFrame {
 
     private void fillUIMailTable(ArrayList<MailData> mailDataList) {
         Debug.log("Atualizando tabela...");
-
-        if (mailDataList.size() <= 0) {
+        
+        if (mailDataList == null) {
             Debug.log("Não existem mensagens salvas.");
             return;
         }

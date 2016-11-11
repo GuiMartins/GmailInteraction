@@ -26,7 +26,7 @@ public class CheckingMails {
 
     public CheckingMails() {
         this.username = "apsandersondb@gmail.com";
-        this.password = "apsanderson";
+        this.password = "chclnqlyockaiext";
         this.mailDataList = check();
     }
 
